@@ -1,8 +1,11 @@
 from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from datetime import time
 from time import sleep
+from datetime import time, datetime, timezone, timedelta
+
 
 """
 Steps:
@@ -15,22 +18,26 @@ Steps:
 # params
 url = "https://gitlab.com/groups/gitlab-org/-/issues/?sort=created_date&state=opened&label_name%5B%5D=frontend&label_name%5B%5D=quick%20win&label_name%5B%5D=Community%20contribution&first_page_size=100"
 
+
 options = Options()
 # comment below line to watch process
 # options.add_argument("--headless")
 options.page_load_strategy = "normal"
 
-driver = webdriver.Chrome(options=options)
+driver = webdriver.Chrome(
+    service=ChromeService(ChromeDriverManager().install()), options=options
+)
+
 driver.get(url)
 sleep(5)
 
-issuable_info = driver.find_element(
+issued_date_element = driver.find_element(
     By.XPATH,
     "//div[@class='issuable-main-info']/div[@class='issuable-info']/span[2]/span[2]/span",
 )
-content = issuable_info.get_attribute("title")
+date_string = issued_date_element.get_attribute("title")
 
-print(content)
+print(date_string)
 
 """
 $x("//div[@class='issuable-main-info']/div[@class='issuable-info']/span[2]/span[2]")
