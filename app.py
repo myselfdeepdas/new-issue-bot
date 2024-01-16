@@ -24,27 +24,26 @@ options = Options()
 # options.add_argument("--headless")
 options.page_load_strategy = "normal"
 
-driver = webdriver.Chrome(
-    service=ChromeService(ChromeDriverManager().install()), options=options
-)
+# driver = webdriver.Chrome(
+#     service=ChromeService(ChromeDriverManager().install()), options=options
+# )
 
-driver.get(url)
-sleep(5)
+# driver.get(url)
+# sleep(5)
 
-issued_date_element = driver.find_element(
-    By.XPATH,
-    "//div[@class='issuable-main-info']/div[@class='issuable-info']/span[2]/span[2]/span",
-)
-date_string = issued_date_element.get_attribute("title")
+# issued_date_element = driver.find_element(
+#     By.XPATH,
+#     "//div[@class='issuable-main-info']/div[@class='issuable-info']/span[2]/span[2]/span",
+# )
+# issued_date_string = issued_date_element.get_attribute("title")
+issued_date_string = "22 December 2023 at 05:02:27 GMT+11"
 
-print(date_string)
+print(issued_date_string)
 
-"""
-$x("//div[@class='issuable-main-info']/div[@class='issuable-info']/span[2]/span[2]")
-driver.find_element(By.XPATH, "//input[@value='f']")
-"""
+formatted_date_string = issued_date_string.split("G")[0]
 
+print(formatted_date_string)
 
-"""<span title="15 December 2023 at 12:01:13 GMT-8" data-testid="issuable-created-at">
-                3 weeks ago
-              </span>"""
+date_object = datetime.strptime(formatted_date_string, "%d %B %Y at %H:%M:%S ")
+print(type(date_object))
+print(date_object)  # printed in default format
