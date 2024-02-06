@@ -5,8 +5,11 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from time import sleep
 from datetime import time, datetime, timezone, timedelta
+from dotenv import load_dotenv
 import pywhatkit
+import os
 
+load_dotenv()
 
 # params
 url = "https://gitlab.com/groups/gitlab-org/-/issues/?sort=created_date&state=opened&label_name%5B%5D=frontend&label_name%5B%5D=quick%20win&label_name%5B%5D=Community%20contribution&first_page_size=100"
@@ -14,6 +17,8 @@ options = Options()
 options.add_argument("--headless")
 options.page_load_strategy = "normal"
 recent_issue = False
+whatsapp_number = os.environ.get("WHATSAPP_NUMBER")
+
 
 # access GitLab issue page
 driver = webdriver.Chrome(
@@ -50,4 +55,4 @@ message_send_time = current_time + timedelta(minutes=1)
 hour = message_send_time.hour
 minute = message_send_time.minute
 
-pywhatkit.sendwhatmsg("+17734599211", "New GitLab Issue!!", hour, minute)
+pywhatkit.sendwhatmsg(whatsapp_number, "New GitLab Issue!!", hour, minute)
