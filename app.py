@@ -6,7 +6,7 @@ from selenium.webdriver.common.by import By
 from time import sleep
 from datetime import time, datetime, timezone, timedelta
 from dotenv import load_dotenv
-import pywhatkit
+import requests
 import os
 
 load_dotenv()
