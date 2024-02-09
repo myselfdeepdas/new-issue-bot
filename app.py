@@ -13,46 +13,59 @@ load_dotenv()
 
 # params
 url = "https://gitlab.com/groups/gitlab-org/-/issues/?sort=created_date&state=opened&label_name%5B%5D=frontend&label_name%5B%5D=quick%20win&label_name%5B%5D=Community%20contribution&first_page_size=100"
+url = "https://gitlab.com/groups/gitlab-org/-/issues/?sort=created_date&state=opened&label_name%5B%5D=frontend&label_name%5B%5D=quick%20win&label_name%5B%5D=Community%20contribution&first_page_size=100"
 options = Options()
 options.add_argument("--headless")
 options.page_load_strategy = "normal"
-recent_issue = False
-whatsapp_number = os.environ.get("WHATSAPP_NUMBER")
-
-
-# access GitLab issue page
-driver = webdriver.Chrome(
-    service=ChromeService(ChromeDriverManager().install()), options=options
-)
-
-driver.get(url)
-sleep(10)
-
-# find the element containing when the ticket was issued
-issued_date_element = driver.find_element(
-    By.XPATH,
-    "//div[@class='issuable-main-info']/div[@class='issuable-info']/span[2]/span[2]/span",
-)
-
-# parse the HTML element to convert to datetime object
-issued_date_string = issued_date_element.get_attribute("title")
-formatted_date_string = issued_date_string.split("G")[0]
-
-# convert string to datetime object
-issued_date_object = datetime.strptime(formatted_date_string, "%d %B %Y at %H:%M:%S ")
-
-# find the current datetime
+BOT_API_KEY = os.environ.get("BOT_API_KEY")
+TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID")
 current_time = datetime.now()
-hour = current_time.hour
-minute = current_time.minute
-
-# check if first ticket on page was issued within 24hrs
-if current_time - timedelta(hours=24) <= issued_date_object <= current_time:
-    recent_issue = True
 
 
-message_send_time = current_time + timedelta(minutes=1)
-hour = message_send_time.hour
-minute = message_send_time.minute
+def check_for_new_issue(url, current_time):
+    recent_issue = False
 
-pywhatkit.sendwhatmsg(whatsapp_number, "New GitLab Issue!!", hour, minute)
+    # access GitLab issue page
+    driver = webdriver.Chrome(
+        service=ChromeService(ChromeDriverManager().install()), options=options
+    )
+    driver.get(url)
+
+    # sleep 10 sec (until page elements load)
+    sleep(10)
+
+    # find the element containing when the ticket was issued
+    issued_date_element = driver.find_element(
+        By.XPATH,
+        "//div[@class='issuable-main-info']/div[@class='issuable-info']/span[2]/span[2]/span",
+    )
+
+    # parse the HTML element to convert to datetime object
+    issued_date_string = "December 21, 2023 at 10:02:27 AM PST"
+    formatted_date_string = issued_date_string.split("A")[0]
+
+    # convert string to datetime object
+    issued_date_object = datetime.strptime(
+        formatted_date_string, "%B %d, %Y at %I:%M:%S "
+    )
+    print(issued_date_object)
+
+    # check if first ticket on page was issued within 24hrs
+    if current_time - timedelta(hours=24) <= issued_date_object <= current_time:
+        recent_issue = True
+        return recent_issue
+
+
+def send_message():
+    recent_issue = check_for_new_issue(url, current_time)
+    if recent_issue:
+        message = "Found New GitLab Issue!!"
+        telegram_message_url = f"https://api.telegram.org/bot{BOT_API_KEY}/sendMessage?chat_id={TELEGRAM_CHAT_ID}&text={message}"
+        print(requests.get(telegram_message_url).json())
+    else:
+        message = "No new tickets found"
+        telegram_message_url = f"https://api.telegram.org/bot{BOT_API_KEY}/sendMessage?chat_id={TELEGRAM_CHAT_ID}&text={message}"
+        print(requests.get(telegram_message_url).json())
+
+
+send_message()
