@@ -13,7 +13,6 @@ load_dotenv()
 
 # params
 url = "https://gitlab.com/groups/gitlab-org/-/issues/?sort=created_date&state=opened&label_name%5B%5D=frontend&label_name%5B%5D=quick%20win&label_name%5B%5D=Community%20contribution&first_page_size=100"
-url = "https://gitlab.com/groups/gitlab-org/-/issues/?sort=created_date&state=opened&label_name%5B%5D=frontend&label_name%5B%5D=quick%20win&label_name%5B%5D=Community%20contribution&first_page_size=100"
 options = Options()
 options.add_argument("--headless")
 options.page_load_strategy = "normal"
@@ -41,14 +40,13 @@ def check_for_new_issue(url, current_time):
     )
 
     # parse the HTML element to convert to datetime object
-    issued_date_string = "December 21, 2023 at 10:02:27 AM PST"
+    issued_date_string = issued_date_element.get_attribute("title")
     formatted_date_string = issued_date_string.split("A")[0]
 
     # convert string to datetime object
     issued_date_object = datetime.strptime(
         formatted_date_string, "%B %d, %Y at %I:%M:%S "
     )
-    print(issued_date_object)
 
     # check if first ticket on page was issued within 24hrs
     if current_time - timedelta(hours=24) <= issued_date_object <= current_time:
